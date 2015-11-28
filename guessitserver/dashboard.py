@@ -26,26 +26,19 @@ import logging
 from flask import Blueprint, render_template, request, redirect, current_app, send_from_directory
 from guessitserver.core import db, crossdomain
 from guessitserver.models import Submission
+from guessit.jsonutils import GuessitEncoder
 import guessit
-import babelfish
 
 log = logging.getLogger(__name__)
 
 bp = Blueprint('web', __name__, static_folder='static', template_folder='templates')
 
 
-def guessit_to_json(o):
-    if isinstance(o, (guessit.Language, babelfish.Language, babelfish.Country)):
-        return str(o)
-    raise TypeError(repr(o) + ' is not JSON serializable')
-
-
-def jsonify(o):
-    return current_app.response_class(json.dumps(o, default=guessit_to_json),
+def jsonify(guess):
+    return current_app.response_class(json.dumps(guess, cls=GuessitEncoder, ensure_ascii=False),
                                       mimetype='application/json')
 
 @bp.route('/robots.txt')
-#@bp.route('/sitemap.xml')
 def static_from_root():
     """Allows to serve static files directly from the root url instead of the
     static folder. Files still need to be put inside the static folder."""
@@ -85,7 +78,7 @@ def view_bugs():
 
     def guess_popover(filename):
         try:
-            g = guessit.guess_video_info(filename)
+            g = guessit.guessit(filename)
             return ', '.join('%s: <b>%s</b>' % (k, v) for k, v in g.items())
 
         except Exception as e:
@@ -158,14 +151,13 @@ HTTP/1.1 200 OK
 
     args = parse_options_dict(request.form)
     filename = args.pop('filename')
-    filetype = args.pop('type', None)
     options = args
 
     log.info('[POST] Guess request: %s  --  options: %s' % (filename, options))
 
     # TODO: store request in DB
     # TODO: if exception, store in list of bugs
-    g = guessit.guess_file_info(filename, type=filetype, options=options)
+    g = guessit.guessit(filename, options=options)
 
     return jsonify(g)
 
@@ -210,7 +202,6 @@ HTTP/1.1 200 OK
     """
     args = parse_options_dict(request.args)
     filename = args.pop('filename')
-    filetype = args.pop('type', None)
     options = args
 
     log.info('[GET] Guess request: %s  --  options: %s' % (filename, options))
@@ -218,7 +209,7 @@ HTTP/1.1 200 OK
 
     # TODO: store request in DB
     # TODO: if exception, store in list of bugs
-    g = guessit.guess_file_info(filename, type=filetype, options=options)
+    g = guessit.guessit(filename, options=options)
 
     return jsonify(g)
 

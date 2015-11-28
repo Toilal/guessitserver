@@ -30,7 +30,7 @@ VERSION = '0.1.dev1'
 
 
 install_requires = ['Flask', 'SQLAlchemy', 'Flask-SQLAlchemy',
-                    'alembic', 'guessit']
+                    'alembic', 'guessit>=2.0rc2']
 
 setup_requires = []
 
