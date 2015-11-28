@@ -50,7 +50,7 @@ def homepage():
     return redirect('http://guessit.readthedocs.org/')
 
 
-@bp.route('/bugs', methods=['POST'])
+@bp.route('/bugs/', methods=['POST'])
 def post_bug_submission():
     """
     @api {post} /bugs Submit new test case / wrong detection
@@ -72,7 +72,7 @@ def post_bug_submission():
     return filename
 
 
-@bp.route('/bugs')
+@bp.route('/bugs/')
 def view_bugs():
     subs = Submission.query.all()
 
@@ -114,7 +114,7 @@ def parse_options_dict(d):
     return {k: parse_opt(v) for k, v in d.items()}
 
 
-@bp.route('/guess', methods=['POST'])
+@bp.route('/guess/', methods=['POST'])
 @crossdomain(origin='*')
 def guess_file_info_post():
     """
@@ -162,7 +162,7 @@ HTTP/1.1 200 OK
     return jsonify(g)
 
 
-@bp.route('/guess', methods=['GET'])
+@bp.route('/guess/', methods=['GET'])
 @crossdomain(origin='*')
 def guess_file_info_get():
     """
@@ -214,7 +214,7 @@ HTTP/1.1 200 OK
     return jsonify(g)
 
 
-@bp.route('/guessit_version')
+@bp.route('/guessit_version/')
 def guessit_version():
     """
     @api {get} /guessit_version Return guessit version
